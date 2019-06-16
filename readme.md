@@ -18,8 +18,6 @@ yarn install
   <a href="https://www.youtube.com/watch?v=cXvFcI8FxdA"><img src="https://img.youtube.com/vi/cXvFcI8FxdA/0.jpg" alt="IMAGE ALT TEXT"></a>
 </div>
 
-[SoChain Bitcoin(Testnet)](https://chain.so/testnet/btc)
-
 ### Screenshots
 
 <p align="center">
