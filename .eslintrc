@@ -1,0 +1,13 @@
+{
+  "extends": ["wesbos"],
+  "rules": {
+    "no-console": 2,
+    "no-nested-ternary": 0,
+    "react/prop-types": 0,
+    "no-useless-escape": 0,
+    "global-require": 0,
+    "react/no-unused-state": 0,
+    "react/no-string-refs": 0,
+    "react/sort-comp": 0
+  }
+}
