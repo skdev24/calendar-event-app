@@ -168,7 +168,6 @@ export default function CreateTask({ navigation, route }) {
   const synchronizeCalendar = async () => {
     const calendarId = await createNewCalendar();
     try {
-      console.log('calendarId', calendarId);
       const createEventId = await addEventsToCalendar(calendarId);
       handleCreateEventData(createEventId);
     } catch (e) {
@@ -234,10 +233,9 @@ export default function CreateTask({ navigation, route }) {
         ]
       }
     };
-
-    await updateTodo(creatTodo);
-    await updateCurrentTask(currentDate);
     navigation.navigate(Routes.HOME);
+    await updateTodo(creatTodo);
+    updateCurrentTask(currentDate);
   };
 
   const handleDatePicked = (date) => {

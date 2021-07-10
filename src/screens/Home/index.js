@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -15,7 +15,6 @@ import {
 import moment from 'moment';
 import * as Calendar from 'expo-calendar';
 import * as Localization from 'expo-localization';
-import shallow from 'zustand/shallow';
 
 import CalendarStrip from 'react-native-calendar-strip';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -158,8 +157,7 @@ export default function Home({ navigation }) {
       updateSelectedTask: state.updateSelectedTask,
       deleteSelectedTask: state.deleteSelectedTask,
       todo: state.todo
-    }),
-    shallow
+    })
   );
 
   const [todoList, setTodoList] = useState([]);
@@ -175,7 +173,7 @@ export default function Home({ navigation }) {
 
   useEffect(() => {
     handleDeletePreviousDayTask(todo);
-  }, [todo]);
+  }, [todo, currentDate]);
 
   const handleDeletePreviousDayTask = async (oldTodo) => {
     try {
@@ -214,30 +212,27 @@ export default function Home({ navigation }) {
     setModalVisible(!isModalVisible);
   };
 
-  const updateCurrentTask = useCallback(
-    async (currentDate) => {
-      try {
-        if (todo !== [] && todo) {
-          const markDot = todo.map((item) => item.markedDot);
-          const todoLists = todo.filter((item) => {
-            if (currentDate === item.date) {
-              return true;
-            }
-            return false;
-          });
-          setMarkedDate(markDot);
-          if (todoLists.length !== 0) {
-            setTodoList(todoLists[0].todoList);
-          } else {
-            setTodoList([]);
+  const updateCurrentTask = async (currentDate) => {
+    try {
+      if (todo !== [] && todo) {
+        const markDot = todo.map((item) => item.markedDot);
+        const todoLists = todo.filter((item) => {
+          if (currentDate === item.date) {
+            return true;
           }
+          return false;
+        });
+        setMarkedDate(markDot);
+        if (todoLists.length !== 0) {
+          setTodoList(todoLists[0].todoList);
+        } else {
+          setTodoList([]);
         }
-      } catch (error) {
-        console.log('updateCurrentTask', error.message);
       }
-    },
-    [todo]
-  );
+    } catch (error) {
+      console.log('updateCurrentTask', error.message);
+    }
+  };
 
   const showDateTimePicker = () => setDateTimePickerVisible(true);
 
@@ -270,13 +265,13 @@ export default function Home({ navigation }) {
       timeZone: Localization.timezone
     };
 
-    if (selectedTask?.alarm.createEventAsyncRes === '') {
+    if (!selectedTask?.alarm.createEventAsyncRes) {
       try {
         const createEventAsyncRes = await Calendar.createEventAsync(
           calendarId.toString(),
           event
         );
-        const updateTask = JSON.parse(JSON.stringify(selectedTask));
+        let updateTask = JSON.parse(JSON.stringify(selectedTask));
         updateTask.alarm.createEventAsyncRes = createEventAsyncRes;
         setSelectedTask(updateTask);
       } catch (error) {
@@ -328,7 +323,7 @@ export default function Home({ navigation }) {
         : { isLocalAccount: true, name: 'Google Calendar' };
 
     const newCalendar = {
-      title: 'Personal Calendar',
+      title: 'Personal',
       entityType: Calendar.EntityTypes.EVENT,
       color: '#2196F3',
       sourceId: defaultCalendarSource?.sourceId || undefined,
@@ -365,9 +360,7 @@ export default function Home({ navigation }) {
             <TextInput
               style={styles.title}
               onChangeText={(text) => {
-                const prevSelectedTask = JSON.parse(
-                  JSON.stringify(selectedTask)
-                );
+                let prevSelectedTask = JSON.parse(JSON.stringify(selectedTask));
                 prevSelectedTask.title = text;
                 setSelectedTask(prevSelectedTask);
               }}
@@ -416,7 +409,7 @@ export default function Home({ navigation }) {
                   marginTop: 3
                 }}
                 onChangeText={(text) => {
-                  const prevSelectedTask = JSON.parse(
+                  let prevSelectedTask = JSON.parse(
                     JSON.stringify(selectedTask)
                   );
                   prevSelectedTask.notes = text;
@@ -497,6 +490,7 @@ export default function Home({ navigation }) {
               <TouchableOpacity
                 onPress={async () => {
                   handleModalVisible();
+                  console.log('isOn', selectedTask?.alarm.isOn);
                   if (selectedTask?.alarm.isOn) {
                     await updateAlarm();
                   } else {
@@ -587,11 +581,9 @@ export default function Home({ navigation }) {
           iconRight={require('../../../assets/right-arrow.png')}
           iconContainer={{ flex: 0.1 }}
           // If you get this error => undefined is not an object (evaluating 'datesList[_this.state.numVisibleDays - 1].date')
-          // Go to CalendarStrip.js lib file and stop componentDidUpdate from being called until layout is done and these lines at beginning of componentDidUpdate and the problem went away
-          // if (!this.state.dayComponentWidth) {
-          //   return
-          // }
+          // temp: https://github.com/BugiDev/react-native-calendar-strip/issues/303#issuecomment-864510769
           markedDates={markedDate}
+          selectedDate={currentDate}
           onDateSelected={(date) => {
             const selectedDate = `${moment(date).format('YYYY')}-${moment(
               date

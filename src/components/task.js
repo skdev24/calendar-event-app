@@ -1,21 +1,47 @@
 import React from 'react';
-import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import {
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 
 const styles = StyleSheet.create({
   cardMain: {
     position: 'absolute',
     top: 100,
     width: 327,
-    borderRadius: 20,
-    backgroundColor: '#ffffff',
     alignSelf: 'center',
     zIndex: 1000,
-    elevation: 1000
+    elevation: 1000,
+    paddingBottom: 54
+  },
+  card: {
+    width: 327,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    alignSelf: 'center'
   },
   container: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)'
-  }
+  },
+  btnContainer: ({ pressed }) => ({
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 0,
+    right: 0,
+    left: 0,
+    backgroundColor: '#FFFFFF',
+    height: 44,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: pressed ? 0.5 : 1
+  }),
+  textContainer: { textAlign: 'center', fontSize: 17, fontWeight: '500' }
 });
 
 // = ({ isModalVisible, children }) =>
@@ -27,12 +53,9 @@ export default class Task extends React.Component {
         animationType="fade"
         transparent
         visible={isModalVisible}
-        onRequestClose={() => null}
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Pressable
-          onPress={() => {
-            setModalVisible(false);
-          }}
+        <View
           style={[
             styles.container,
             {
@@ -44,8 +67,16 @@ export default class Task extends React.Component {
             }
           ]}
         >
-          <View style={styles.cardMain}>{children}</View>
-        </Pressable>
+          <View style={styles.cardMain}>
+            <View style={styles.card}>{children}</View>
+            <Pressable
+              style={styles.btnContainer}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.textContainer}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
       </Modal>
     );
   }
